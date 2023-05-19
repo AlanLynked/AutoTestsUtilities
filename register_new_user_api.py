@@ -3,7 +3,7 @@ import re
 import time
 from datetime import datetime
 from api_requests import *
-
+from config import Config
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -15,11 +15,9 @@ now = datetime.now()
 date_str = now.strftime("%y%m%d")
 time_str = now.strftime("%H%M%S")
 
-with open('config.json') as config_file:
-    config_data = json.load(config_file)
 
-NICKNAME = "tui" + date_str + time_str
-EMAIL = email_base + date_str + time_str + "@gmail.com"
+NICKNAME = "tuiapi" + date_str + time_str
+EMAIL = Config.email + date_str + time_str + "@gmail.com"
 
 
 # Access mailbox and find confirmation code
@@ -104,7 +102,6 @@ def extract_code_from_message(message):
 
 # Just to check if it's working
 def post_note(access_token):
-    url = "http://158.160.32.219:8081/notes"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
@@ -113,7 +110,7 @@ def post_note(access_token):
         "text": "This is an automated note"
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response = requests.post(Config.api_main_notes, headers=headers, data=json.dumps(payload))
     if response.status_code == 201:
         print("Note placed successfully")
     else:
@@ -121,7 +118,7 @@ def post_note(access_token):
 
 
 # Main function
-def auto_user_registration():
+def get_registered_user_token():
     # Step 1: Send API request to register a new user
     if register_user(NICKNAME, EMAIL):
         # Step 2: Access mailbox and find confirmation code
@@ -147,6 +144,6 @@ def auto_user_registration():
 
 
 # Run the automation function
-access_token = auto_user_registration()
-if access_token:
-    post_note(access_token)
+access_token = get_registered_user_token()
+# if access_token:
+#     post_note(access_token)

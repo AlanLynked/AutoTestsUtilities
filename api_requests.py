@@ -1,25 +1,16 @@
 import requests
 import json
-
-
-with open('config.json') as config_file:
-    config_data = json.load(config_file)
-
-email_base = config_data["email"]
-register_url = config_data["register_url"]
-otp_url = config_data["otp_url"]
-token_url = config_data["token_url"]
+from config import Config
 
 
 def register_user(nickname, email):
-    url = register_url
     headers = {
         "Content-Type": "application/json"
     }
     payload = {
         "nickname": nickname,
         "email": email,
-        "first_name": "Auto",
+        "first_name": "API",
         "last_name": "User",
         "gender": "male",
         "birthday": "2023-05-17T12:56:23.749Z",
@@ -31,7 +22,7 @@ def register_user(nickname, email):
         "dating_purpose": "love",
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response = requests.post(Config.api_auth_register, headers=headers, data=json.dumps(payload))
     if response.status_code == 201:
         return True
     else:
@@ -40,7 +31,6 @@ def register_user(nickname, email):
 
 
 def request_otp(email):
-    url = otp_url
     headers = {
         "Content-Type": "application/json"
     }
@@ -48,7 +38,7 @@ def request_otp(email):
         "email": email,
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response = requests.post(Config.api_auth_otp, headers=headers, data=json.dumps(payload))
     if response.status_code == 200:
         return True
     else:
@@ -56,7 +46,6 @@ def request_otp(email):
 
 
 def get_token(email, otp):
-    url = token_url
     headers = {
         "Content-Type": "application/json"
     }
@@ -64,7 +53,7 @@ def get_token(email, otp):
         "email": email,
         "otp": otp,
     }
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response = requests.post(Config.api_auth_token, headers=headers, data=json.dumps(payload))
     if response.status_code == 200:
         token = response.json().get('access_token')
         return token
